@@ -1,0 +1,15 @@
+GET http://localhost:8081/inputs
+Accept: application/json
+
+###
+POST http://localhost:8081/inputs/add
+Content-Type: application/json
+
+{
+  "userInput": "arcana"
+}
+
+###
+
+
+
