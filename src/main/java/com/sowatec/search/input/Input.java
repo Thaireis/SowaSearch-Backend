@@ -18,7 +18,6 @@ public class Input {
     private long id;
     private String userInput;
 
-
     public Input(long id, String userInput) {
         super();
         this.id = id;

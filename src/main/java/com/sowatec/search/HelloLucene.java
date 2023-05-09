@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.sowatec.search.input.InputController;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -28,39 +27,54 @@ import org.apache.lucene.store.ByteBuffersDirectory;
 import org.apache.lucene.store.Directory;
 
 public class HelloLucene {
+
+
+
     public static void main(String[] args) throws IOException {
-        // 0. Specify the analyzer for tokenizing text.
-        //    The same analyzer should be used for indexing and searching
+
+
+        /**
+         * - Von Lucene auf Datenbank zugreifen
+         * - Search Input erhalten
+         * - Search Input einsetzen können
+         * - Resultate von Lucene in eine Neue Tabelle registrieren
+         * - GET Mapping auf Lucene Resultate
+         * - Frontend erhält das Resultat von Lucene
+         * **/
+
+        search("arcana");
+
+    }
+
+    public static String search(String searchWord) throws IOException {
+
         StandardAnalyzer analyzer = new StandardAnalyzer();
-
-        // 1. create the index
         Directory index = new ByteBuffersDirectory();
-
         IndexWriterConfig config = new IndexWriterConfig(analyzer);
-
         IndexWriter w = new IndexWriter(index, config);
+        StringBuilder sb = new StringBuilder();
 
         Path desktopDir = Paths.get(LuceneConstants.FILE_PATH);
+
         List<Path> desktopFiles = Files.list(desktopDir).collect(Collectors.toList());
+
         for (Path path : desktopFiles) {
-  			if (path.toFile().getAbsolutePath().endsWith(LuceneConstants.FILE_NAME) &&
-					!path.toFile().getAbsolutePath().endsWith("test1.txt")) {
-				String contents = readTextContents(path);
-                //String contents = LuceneConstants.CONTENTS;
-				System.out.println("### " + contents.length() + " - " + path.getFileName());
-				addDoc(w, contents, path.toFile().getAbsolutePath());
-			} else {
-				System.out.println("-- ignore " + path.getFileName());
-			}
-		}
+            if (path.toFile().getAbsolutePath().endsWith(LuceneConstants.FILE_NAME) &&
+                    !path.toFile().getAbsolutePath().endsWith("test1.txt")) {
+                String contents = readTextContents(path);
+                sb.append("\n### " + contents.length() + " - " + path.getFileName());
+                addDoc(w, contents, path.toFile().getAbsolutePath());
+            } else {
+                sb.append("-- ignore " + path.getFileName() + "\n");
+            }
+        }
         w.close();
 
 
         // 2. query
-        String querystring = args.length > 0 ? args[0] : "arcana";
+        String[] args = new String[0];
+        String querystring = args.length > 0 ? args[0] : searchWord;
 
-        // the "title" arg specifies the default field to use
-        // when no field is explicitly specified in the query.
         Query q = null;
         try {
             q = new QueryParser("title", analyzer).parse(querystring);
@@ -76,36 +90,37 @@ public class HelloLucene {
         ScoreDoc[] hits = docs.scoreDocs;
 
         // 4. display results
-        System.out.println("Found " + hits.length + " hits.");
+        //System.out.println("Found " + hits.length + " hits.");
+        sb.append("\nFound " + hits.length + " hits.\n");
         for(int i=0;i<hits.length;++i) {
             int docId = hits[i].doc;
             Document d = searcher.doc(docId);
-            System.out.println((i + 1) + ". " + d.get("isbn") + "\t" + d.get("title"));
+            //System.out.println((i + 1) + ". " + d.get("isbn") + "\t" + d.get("title"));
+            sb.append((i + 1) + ". " + d.get("isbn") + "\n" /*+ "\t" + d.get("title")*/);
         }
-        System.out.println("querystring: " + querystring);
-        // reader can only be closed when there
-        // is no need to access the documents any more.
+        //System.out.println("querystring: " + querystring);
+        sb.append("\nquerystring: " + querystring);
         reader.close();
+        return sb.toString();
     }
 
-    private static void addDoc(IndexWriter w, String title, String isbn) throws IOException {
+
+
+    public static void addDoc(IndexWriter w, String title, String isbn) throws IOException {
         Document doc = new Document();
         doc.add(new TextField("title", title, Field.Store.YES));
-        // use a string field for isbn because we don't want it tokenized
         doc.add(new StringField("isbn", isbn, Field.Store.YES));
         w.addDocument(doc);
     }
 
-    private static  String readTextContents(Path filePath) {
+    public static String readTextContents(Path filePath) {
     	StringBuilder contentBuilder = new StringBuilder();
 
     	try (Stream<String> stream = Files.lines(filePath, StandardCharsets.UTF_8)) {
 
     	  stream.forEach(s -> contentBuilder.append(s).append("\n"));
     	} catch (IOException e) {
-    	  //handle exception
     	}
-
     	return contentBuilder.toString();
     }
 }

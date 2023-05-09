@@ -20,6 +20,7 @@ public class InputService {
         return inputRepository.findAll();
     }
 
+
     public void addNewInput(Input input) {
         Optional<Input> inputByUserInput = inputRepository.findInputByUserInput(input.getUserInput());
         if(inputByUserInput.isPresent()) {
