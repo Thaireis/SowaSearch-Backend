@@ -13,4 +13,14 @@ Content-Type: application/json
 GET http://localhost:8081/inputs?post=arcana
 Content-Type: application/json
 
+###
+//----------------------
 
+GET http://localhost:8081/inputs?int=arcana
+Content-Type: application/json
+
+###
+//----------------------
+
+GET http://localhost:8081/inputs?path=arcana
+Content-Type: application/json

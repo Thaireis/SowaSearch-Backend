@@ -4,6 +4,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -26,27 +28,33 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.ByteBuffersDirectory;
 import org.apache.lucene.store.Directory;
 
-public class HelloLucene {
+public class LuceneSearch {
 
+    /**
+     * - Von Lucene auf Datenbank zugreifen
+     * - Search Input erhalten
+     * - Search Input einsetzen können
+     * - Resultate von Lucene in eine Neue Tabelle registrieren
+     * - GET Mapping auf Lucene Resultate
+     * - Frontend erhält das Resultat von Lucene
+     * **/
 
+    //static Lucene lucene = new Lucene();
 
     public static void main(String[] args) throws IOException {
-
-
-        /**
-         * - Von Lucene auf Datenbank zugreifen
-         * - Search Input erhalten
-         * - Search Input einsetzen können
-         * - Resultate von Lucene in eine Neue Tabelle registrieren
-         * - GET Mapping auf Lucene Resultate
-         * - Frontend erhält das Resultat von Lucene
-         * **/
-
+        /*
         search("arcana");
 
+        System.out.println("-----------------------------------------");
+        System.out.println(
+                "Input: " + lucene.getInput() + "\n" +
+                        "Input: " + lucene.getHitAmount() + "\n" +
+                        "Input: " + lucene.getPath() + "\n"
+        );
+        */
     }
 
-    public static String search(String searchWord) throws IOException {
+    public static String search(String searchWord, Lucene lucene) throws IOException {
 
         StandardAnalyzer analyzer = new StandardAnalyzer();
         Directory index = new ByteBuffersDirectory();
@@ -54,12 +62,13 @@ public class HelloLucene {
         IndexWriter w = new IndexWriter(index, config);
         StringBuilder sb = new StringBuilder();
 
-        Path desktopDir = Paths.get(LuceneConstants.FILE_PATH);
+
+        Path desktopDir = Paths.get(Lucene.FILE_PATH);
 
         List<Path> desktopFiles = Files.list(desktopDir).collect(Collectors.toList());
 
         for (Path path : desktopFiles) {
-            if (path.toFile().getAbsolutePath().endsWith(LuceneConstants.FILE_NAME) &&
+            if (path.toFile().getAbsolutePath().endsWith(Lucene.FILE_NAME) &&
                     !path.toFile().getAbsolutePath().endsWith("test1.txt")) {
                 String contents = readTextContents(path);
                 sb.append("\n### " + contents.length() + " - " + path.getFileName());
@@ -91,14 +100,24 @@ public class HelloLucene {
 
         // 4. display results
         //System.out.println("Found " + hits.length + " hits.");
+        lucene.setHitAmount(hits.length);
         sb.append("\nFound " + hits.length + " hits.\n");
-        for(int i=0;i<hits.length;++i) {
+
+        List<String> paths = new ArrayList<>();
+
+        for(int i=0; i < hits.length; ++i) {
             int docId = hits[i].doc;
             Document d = searcher.doc(docId);
-            //System.out.println((i + 1) + ". " + d.get("isbn") + "\t" + d.get("title"));
+
+            paths.add((i + 1) + ". " + d.get("isbn"));
+
+
             sb.append((i + 1) + ". " + d.get("isbn") + "\n" /*+ "\t" + d.get("title")*/);
         }
-        //System.out.println("querystring: " + querystring);
+
+        lucene.setPath(paths);
+
+        lucene.setInput(querystring);
         sb.append("\nquerystring: " + querystring);
         reader.close();
         return sb.toString();
