@@ -1,26 +1,17 @@
-POST http://localhost:8081/inputs/post
-Content-Type: application/json
 
-{
-  "userInput": "arcana"
-}
-
-###
-POST http://localhost:8081/inputs?post=arcana
-Content-Type: application/json
-
-###
-GET http://localhost:8081/inputs?post=arcana
+POST http://localhost:8081/inputs/filter/int?post=arcana&filterPath=D:/DATA/Lucene_test&filterName=test2&filterType=.txt
 Content-Type: application/json
 
 ###
 //----------------------
 
-GET http://localhost:8081/inputs?int=arcana
+POST http://localhost:8081/inputs/filter/paths?post=arcana&filterPath=D:/DATA/Lucene_test&filterName=test2&filterType=.txt
 Content-Type: application/json
 
 ###
-//----------------------
 
-GET http://localhost:8081/inputs?path=arcana
+POST http://localhost:8081/inputs/filter/result?post=arcana&filterPath=D:/DATA/Lucene_test&filterName=test2&filterType=.txt
 Content-Type: application/json
+
+###
+

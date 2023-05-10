@@ -5,7 +5,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -30,28 +29,7 @@ import org.apache.lucene.store.Directory;
 
 public class LuceneSearch {
 
-    /**
-     * - Von Lucene auf Datenbank zugreifen
-     * - Search Input erhalten
-     * - Search Input einsetzen können
-     * - Resultate von Lucene in eine Neue Tabelle registrieren
-     * - GET Mapping auf Lucene Resultate
-     * - Frontend erhält das Resultat von Lucene
-     * **/
-
-    //static Lucene lucene = new Lucene();
-
     public static void main(String[] args) throws IOException {
-        /*
-        search("arcana");
-
-        System.out.println("-----------------------------------------");
-        System.out.println(
-                "Input: " + lucene.getInput() + "\n" +
-                        "Input: " + lucene.getHitAmount() + "\n" +
-                        "Input: " + lucene.getPath() + "\n"
-        );
-        */
     }
 
     public static String search(String searchWord, Lucene lucene) throws IOException {
@@ -62,21 +40,58 @@ public class LuceneSearch {
         IndexWriter w = new IndexWriter(index, config);
         StringBuilder sb = new StringBuilder();
 
-
-        Path desktopDir = Paths.get(Lucene.FILE_PATH);
+        /**
+         * Filter Path here
+         */
+        Path desktopDir = Paths.get(lucene.getFilterPath());
 
         List<Path> desktopFiles = Files.list(desktopDir).collect(Collectors.toList());
 
         for (Path path : desktopFiles) {
-            if (path.toFile().getAbsolutePath().endsWith(Lucene.FILE_NAME) &&
-                    !path.toFile().getAbsolutePath().endsWith("test1.txt")) {
+
+            if (lucene.getFilterDataType().isBlank() && lucene.getFilterFileName().isBlank()) {
                 String contents = readTextContents(path);
                 sb.append("\n### " + contents.length() + " - " + path.getFileName());
                 addDoc(w, contents, path.toFile().getAbsolutePath());
-            } else {
-                sb.append("-- ignore " + path.getFileName() + "\n");
+
+            } else if (path.toFile().getAbsolutePath().startsWith(lucene.getFilterFileName())) {
+                String contents = readTextContents(path);
+                sb.append("\n### " + contents.length() + " - " + path.getFileName());
+                addDoc(w, contents, path.toFile().getAbsolutePath());
+
+            } else if (path.toFile().getAbsolutePath().endsWith(lucene.getFilterFileName() + lucene.getFilterDataType())) {
+                String contents = readTextContents(path);
+                sb.append("\n### " + contents.length() + " - " + path.getFileName());
+                addDoc(w, contents, path.toFile().getAbsolutePath());
+
             }
         }
+
+        /*
+               for (Path path : desktopFiles) {
+            if (
+                    path.toFile().getAbsolutePath().endsWith(lucene.getFilterDataType()) && !path.toFile().getAbsolutePath().endsWith("test1.txt")) {
+
+
+
+                String contents = readTextContents(path);
+                sb.append("\n### " + contents.length() + " - " + path.getFileName());
+                addDoc(w, contents, path.toFile().getAbsolutePath());
+
+
+
+            } else {
+
+
+                sb.append("-- ignore " + path.getFileName() + "\n");
+
+
+            }
+        }
+        */
+
+
+
         w.close();
 
 
@@ -99,24 +114,32 @@ public class LuceneSearch {
         ScoreDoc[] hits = docs.scoreDocs;
 
         // 4. display results
-        //System.out.println("Found " + hits.length + " hits.");
+        /**
+         * Hit Amounts here after Search
+         */
         lucene.setHitAmount(hits.length);
         sb.append("\nFound " + hits.length + " hits.\n");
-
+        /**
+         * 1/3 List for Paths after Search
+         */
         List<String> paths = new ArrayList<>();
 
         for(int i=0; i < hits.length; ++i) {
             int docId = hits[i].doc;
             Document d = searcher.doc(docId);
-
+            /**
+             * 2/3 Added Paths to List after Search
+             */
             paths.add((i + 1) + ". " + d.get("isbn"));
-
-
             sb.append((i + 1) + ". " + d.get("isbn") + "\n" /*+ "\t" + d.get("title")*/);
         }
-
+        /**
+         * 3/3 Paths here after Search
+         */
         lucene.setPath(paths);
-
+        /**
+         * Input here after Search
+         */
         lucene.setInput(querystring);
         sb.append("\nquerystring: " + querystring);
         reader.close();

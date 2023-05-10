@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.List;
 
 @RestController
@@ -18,37 +19,6 @@ public class InputController {
         this.inputService = inputService;
     }
 
-    /*
-    @GetMapping("/inputs")
-    public List<Input> getInputs() {
-        return inputService.getInputs();
-    }
-    */
-
-        /*
-    @PostMapping("/inputs/add")
-    public void registerNewInput(@RequestBody Input input) {
-        inputService.addNewInput(input);
-    }
-    */
-
-
-    //----------------------------------------------
-    // POST OR GET for entire result of Lucene
-    @CrossOrigin()
-    @RequestMapping(
-            method = {RequestMethod.POST, RequestMethod.GET},
-            value = "/inputs",
-            params = { "post" }
-    )
-    @ResponseBody
-    public String getInputNew(@RequestParam("post") String input) throws IOException {
-        Lucene lucene = new Lucene();
-        LuceneSearch luceneSearch = new LuceneSearch();
-        String result = luceneSearch.search(input, lucene);
-        return result;
-    }
-
 
     //----------------------------------------------
     // GETs Amount of hits that match the search
@@ -56,13 +26,21 @@ public class InputController {
     @CrossOrigin()
     @RequestMapping(
             method = {RequestMethod.POST, RequestMethod.GET},
-            value = "/inputs",
-            params = { "int" }
+            value = "/inputs/filter/int",
+            params = { "post", "filterPath", "filterName", "filterType" }
     )
     @ResponseBody
-    public int getHitAmount(@RequestParam("int") String input) throws IOException {
+    public int getHitAmount(
+            @RequestParam("post") String input,
+            @RequestParam("filterPath") String filterPath,
+            @RequestParam("filterName") String filterName,
+            @RequestParam("filterType") String filterType
+    ) throws IOException {
         Lucene lucene = new Lucene();
         LuceneSearch luceneSearch = new LuceneSearch();
+        lucene.setFilterPath(filterPath);
+        lucene.setFilterFileName(filterName);
+        lucene.setFilterDataType(filterType);
         luceneSearch.search(input, lucene);
         return lucene.getHitAmount();
     }
@@ -72,15 +50,74 @@ public class InputController {
     @CrossOrigin()
     @RequestMapping(
             method = {RequestMethod.POST, RequestMethod.GET},
-            value = "/inputs",
-            params = { "path" }
+            value = "/inputs/filter/paths",
+            params = { "post", "filterPath", "filterName", "filterType" }
     )
     @ResponseBody
-    public List<String> getPaths(@RequestParam("path") String input) throws IOException {
+    public List<String> getPaths(
+            @RequestParam("post") String input,
+            @RequestParam("filterPath") String filterPath,
+            @RequestParam("filterName") String filterName,
+            @RequestParam("filterType") String filterType
+    ) throws IOException {
         Lucene lucene = new Lucene();
         LuceneSearch luceneSearch = new LuceneSearch();
+        lucene.setFilterPath(filterPath);
+        lucene.setFilterFileName(filterName);
+        lucene.setFilterDataType(filterType);
         luceneSearch.search(input, lucene);
         return lucene.getPath();
     }
 
+    //----------------------------------------------
+    // POST OR GET for entire result of Lucene
+    @CrossOrigin()
+    @RequestMapping(
+            method = {RequestMethod.POST, RequestMethod.GET},
+            value = "/inputs/filter/result",
+            params = { "post", "filterPath", "filterName", "filterType" }
+    )
+    @ResponseBody
+    public String getInputNew(
+            @RequestParam("post") String input,
+            @RequestParam("filterPath") String filterPath,
+            @RequestParam("filterName") String filterName,
+            @RequestParam("filterType") String filterType
+    ) throws IOException {
+        Lucene lucene = new Lucene();
+        LuceneSearch luceneSearch = new LuceneSearch();
+        lucene.setFilterPath(filterPath);
+        lucene.setFilterFileName(filterName);
+        lucene.setFilterDataType(filterType);
+        String result = luceneSearch.search(input, lucene);
+        return result;
+    }
+
+    //----------------------------------------------
+    //Filter
+    //----------------------------------------------
+    /*
+    @CrossOrigin()
+    @RequestMapping(
+            method = {RequestMethod.POST, RequestMethod.GET},
+            value = "/inputs/filter",
+            params = { "post", "filterPath", "filterName", "filterType" }
+    )
+    @ResponseBody
+    public String setFilter(
+            @RequestParam("post") String input,
+            @RequestParam("filterPath") String filterPath,
+            @RequestParam("filterName") String filterName,
+            @RequestParam("filterType") String filterType
+
+    ) throws IOException {
+        Lucene lucene = new Lucene();
+        LuceneSearch luceneSearch = new LuceneSearch();
+        lucene.setFilterPath(filterPath);
+        lucene.setFilterFileName(filterName);
+        lucene.setFilterDataType(filterType);
+        String result = luceneSearch.search(input, lucene);
+        return result;
+    }
+    */
 }

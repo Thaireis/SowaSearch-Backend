@@ -3,24 +3,25 @@ package com.sowatec.search;
 import java.util.List;
 
 public class Lucene {
-	public static final String CONTENTS = "The arcana is the means by which all is revealed";
-	public static final String FILE_NAME = ".txt";
-	public static final String FILE_PATH = "D:\\DATA\\Lucene_test";
-	public static final int MAX_SEARCH = 10;
 
-	String input;
-	int hitAmount;
-	List<String> path;
 
-	public Lucene(String input, int hitAmount, List<String> path) {
+	public Lucene(String input, int hitAmount, List<String> path, String filterPath, String filterFileName, String filterDataType) {
 		this.input = input;
 		this.hitAmount = hitAmount;
 		this.path = path;
+		this.filterPath = filterPath;
+		this.filterFileName = filterFileName;
+		this.filterDataType = filterDataType;
 	}
 
 	public Lucene() {
 
 	}
+
+
+	String input;
+	int hitAmount;
+	List<String> path;
 
 	public String getInput() {
 		return input;
@@ -44,5 +45,38 @@ public class Lucene {
 
 	public void setPath(List<String> path) {
 		this.path = path;
+	}
+
+
+	/*------Filter Variables------*/
+
+
+	String filterPath;
+	String filterFileName;
+	String filterDataType;
+
+
+	public String getFilterPath() {
+		return filterPath;
+	}
+
+	public void setFilterPath(String filterPath) {
+		this.filterPath = filterPath;
+	}
+
+	public String getFilterFileName() {
+		return filterFileName;
+	}
+
+	public void setFilterFileName(String filterFileName) {
+		this.filterFileName = filterFileName;
+	}
+
+	public String getFilterDataType() {
+		return filterDataType;
+	}
+
+	public void setFilterDataType(String filterDataType) {
+		this.filterDataType = filterDataType;
 	}
 }
