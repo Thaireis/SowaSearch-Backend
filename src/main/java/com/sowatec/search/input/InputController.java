@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
 
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 public class InputController {
 
@@ -47,6 +48,7 @@ public class InputController {
 
     //----------------------------------------------
     // GETs Paths
+
     @CrossOrigin()
     @RequestMapping(
             method = {RequestMethod.POST, RequestMethod.GET},
@@ -71,7 +73,8 @@ public class InputController {
 
     //----------------------------------------------
     // POST OR GET for entire result of Lucene
-    @CrossOrigin()
+
+
     @RequestMapping(
             method = {RequestMethod.POST, RequestMethod.GET},
             value = "/inputs/filter/result",
@@ -84,14 +87,46 @@ public class InputController {
             @RequestParam("filterName") String filterName,
             @RequestParam("filterType") String filterType
     ) throws IOException {
+
         Lucene lucene = new Lucene();
-        LuceneSearch luceneSearch = new LuceneSearch();
         lucene.setFilterPath(filterPath);
         lucene.setFilterFileName(filterName);
         lucene.setFilterDataType(filterType);
+        LuceneSearch luceneSearch = new LuceneSearch();
         String result = luceneSearch.search(input, lucene);
+
         return result;
     }
+
+
+    //----------------------------------------------
+    // TESTING
+
+    /*
+    @RequestMapping(
+            method = {RequestMethod.POST, RequestMethod.GET},
+            value = "/inputs/filter/result",
+            params = { "post", "filterPath", "filterName", "filterType" }
+    )
+    @ResponseBody
+    public String[] getInputNew(
+            @RequestParam("post") String input,
+            @RequestParam("filterPath") String filterPath,
+            @RequestParam("filterName") String filterName,
+            @RequestParam("filterType") String filterType
+    ) throws IOException {
+        String[] result = {input, filterPath, filterName, filterType};
+        return result;
+    }
+    */
+
+
+
+
+
+
+
+
 
     //----------------------------------------------
     //Filter

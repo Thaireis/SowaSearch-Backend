@@ -30,6 +30,13 @@ import org.apache.lucene.store.Directory;
 public class LuceneSearch {
 
     public static void main(String[] args) throws IOException {
+        /*
+        Lucene lucene = new Lucene();
+        lucene.setFilterPath("D:\\DATA\\Lucene_test");
+        lucene.setFilterFileName("test2");
+        lucene.setFilterDataType(".txt");
+        System.out.println(search("arcana", lucene));
+        */
     }
 
     public static String search(String searchWord, Lucene lucene) throws IOException {
@@ -40,6 +47,10 @@ public class LuceneSearch {
         IndexWriter w = new IndexWriter(index, config);
         StringBuilder sb = new StringBuilder();
 
+        //System.out.println(lucene.getFilterPath());
+        //System.out.println(lucene.getFilterFileName());
+        //System.out.println(lucene.getFilterDataType());
+
         /**
          * Filter Path here
          */
@@ -49,6 +60,17 @@ public class LuceneSearch {
 
         for (Path path : desktopFiles) {
 
+            if (!lucene.getFilterPath().isBlank()
+                    && !lucene.getFilterFileName().isBlank()
+                    && !lucene.getFilterDataType().isBlank()
+                    && path.toFile().getAbsolutePath().endsWith(lucene.getFilterFileName() + lucene.getFilterDataType())
+            ) {
+                String contents = readTextContents(path);
+                sb.append("\n### " + contents.length() + " - " + path.getFileName());
+                addDoc(w, contents, path.toFile().getAbsolutePath());
+            }
+
+            /**
             if (lucene.getFilterDataType().isBlank() && lucene.getFilterFileName().isBlank()) {
                 String contents = readTextContents(path);
                 sb.append("\n### " + contents.length() + " - " + path.getFileName());
@@ -63,8 +85,8 @@ public class LuceneSearch {
                 String contents = readTextContents(path);
                 sb.append("\n### " + contents.length() + " - " + path.getFileName());
                 addDoc(w, contents, path.toFile().getAbsolutePath());
-
             }
+             */
         }
 
         /*
