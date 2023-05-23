@@ -15,7 +15,7 @@ Content-Type: application/json
 
 ###
 
-GET http://localhost:8081/inputs/filter/result?post=arcana&filterPath=D:/DATA/Lucene_test&filterName=test2&filterType=.txt
+GET http://localhost:8081/inputs/filter/result?post=5029&filterPath=D:/DATA/Lucene_test&filterName=&filterType=
 Content-Type: application/json
 
 ###
