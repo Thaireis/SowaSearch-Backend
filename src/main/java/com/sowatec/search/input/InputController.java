@@ -2,6 +2,7 @@ package com.sowatec.search.input;
 
 import com.sowatec.search.LuceneSearch;
 import com.sowatec.search.Lucene;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,7 +37,7 @@ public class InputController {
             @RequestParam("filterPath") String filterPath,
             @RequestParam("filterName") String filterName,
             @RequestParam("filterType") String filterType
-    ) throws IOException {
+    ) throws IOException, InvalidFormatException {
         Lucene lucene = new Lucene();
         LuceneSearch luceneSearch = new LuceneSearch();
         lucene.setFilterPath(filterPath);
@@ -61,7 +62,7 @@ public class InputController {
             @RequestParam("filterPath") String filterPath,
             @RequestParam("filterName") String filterName,
             @RequestParam("filterType") String filterType
-    ) throws IOException {
+    ) throws IOException, InvalidFormatException {
         Lucene lucene = new Lucene();
         LuceneSearch luceneSearch = new LuceneSearch();
         lucene.setFilterPath(filterPath);
@@ -86,7 +87,7 @@ public class InputController {
             @RequestParam("filterPath") String filterPath,
             @RequestParam("filterName") String filterName,
             @RequestParam("filterType") String filterType
-    ) throws IOException {
+    ) throws IOException, InvalidFormatException {
 
         Lucene lucene = new Lucene();
         lucene.setFilterPath(filterPath);

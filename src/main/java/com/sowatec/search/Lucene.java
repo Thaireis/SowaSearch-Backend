@@ -4,20 +4,9 @@ import java.util.List;
 
 public class Lucene {
 
-
-	public Lucene(String input, int hitAmount, List<String> path, String filterPath, String filterFileName, String filterDataType) {
-		this.input = input;
-		this.hitAmount = hitAmount;
-		this.path = path;
-		this.filterPath = filterPath;
-		this.filterFileName = filterFileName;
-		this.filterDataType = filterDataType;
-	}
-
 	public Lucene() {
 
 	}
-
 
 	String input;
 	int hitAmount;
@@ -55,6 +44,7 @@ public class Lucene {
 	String filterFileName;
 	String filterDataType;
 
+	List<String> ignoreList;
 
 	public String getFilterPath() {
 		return filterPath;
@@ -78,5 +68,14 @@ public class Lucene {
 
 	public void setFilterDataType(String filterDataType) {
 		this.filterDataType = filterDataType;
+	}
+
+
+	public List<String> getIgnoreList() {
+		return ignoreList;
+	}
+
+	public void setIgnoreList(List<String> ignoreList) {
+		this.ignoreList = ignoreList;
 	}
 }
