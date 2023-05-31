@@ -41,14 +41,18 @@ public class LuceneSearch {
 
     public static void main(String[] args) throws IOException, InvalidFormatException {
 
+        java.util.logging.Logger
+                .getLogger("org.apache.pdfbox").setLevel(java.util.logging.Level.OFF);
+
+
         Lucene lucene = new Lucene();
         lucene.setFilterPath("D:\\DATA\\Lucene_test\\");
         lucene.setFilterFileName("");
-        lucene.setFilterDataType("");
+        lucene.setFilterDataType(".txt");
 
         List<String> ignoreList = new LinkedList<>();
-        ignoreList.add("D:\\DATA\\Lucene_test\\test2.txt");
-        ignoreList.add("D:\\DATA\\Lucene_test\\test4.txt");
+        ignoreList.add("test2.txt");
+        ignoreList.add("test4.txt");
         lucene.setIgnoreList(ignoreList);
         System.out.println(lucene.getIgnoreList());
 
@@ -88,48 +92,56 @@ public class LuceneSearch {
         return sb.toString();
     }
 
-    private static void getIndexWriter(IndexWriter w, StringBuilder sb, Path path, Lucene lucene) throws IOException, InvalidFormatException {
+    private static void getIndexWriter(IndexWriter indexWriter, StringBuilder sb, Path path, Lucene lucene) throws IOException, InvalidFormatException {
 
-        boolean found = false;
-
-        for (String s : lucene.getIgnoreList()) {
-            if (path.toFile().getAbsolutePath().equals(s)) {
-                System.out.println(s + " found in IgnoreList");
-                found = true;
-            }
-        }
+        boolean found = foundIgnoreListEntry(path, lucene);
 
         if (!found) {
 
             if (path.toFile().getAbsolutePath().endsWith(".docx")) {
                 String text = word(path);
-                sb.append("\n### " + text.length() + " - " + path.getFileName());
-                addDoc(w, text, path.toFile().getAbsolutePath());
+                sb.append("\n### ").append(text.length()).append(" - ").append(path.getFileName());
+                addDoc(indexWriter, text, path.toFile().getAbsolutePath());
             }
             else if (path.toFile().getAbsolutePath().endsWith(".pdf")) {
                 String text = pdf(path);
-                sb.append("\n### " + text.length() + " - " + path.getFileName());
-                addDoc(w, text, path.toFile().getAbsolutePath());
+                sb.append("\n### ").append(text.length()).append(" - ").append(path.getFileName());
+                addDoc(indexWriter, text, path.toFile().getAbsolutePath());
             }
             else if (path.toFile().getAbsolutePath().endsWith(".xlsx")) {
                 List<String> list = excel(path);
-            /*ListIterator<String> listIterator = list.listIterator();
+                /*ListIterator<String> listIterator = list.listIterator();
 
-            System.out.println(list);
-            while (listIterator.hasNext()) {
-                if (listIterator.next().equals("arcana")) {
-                    System.out.println("BINGO");
-                }
-            }*/
-                sb.append("\n### " + list.size() + " - " + path.getFileName());
-                addDoc(w, String.valueOf(list), path.toFile().getAbsolutePath());
+                System.out.println(list);
+                while (listIterator.hasNext()) {
+                    if (listIterator.next().equals("arcana")) {
+                        System.out.println("BINGO");
+                    }
+                }*/
+                sb.append("\n### ").append(list.size()).append(" - ").append(path.getFileName());
+                addDoc(indexWriter, String.valueOf(list), path.toFile().getAbsolutePath());
             }
             else {
                 String contents = readTextContents(path);
-                sb.append("\n### " + contents.length() + " - " + path.getFileName());
-                addDoc(w, contents, path.toFile().getAbsolutePath());
+                sb.append("\n### ").append(contents.length()).append(" - ").append(path.getFileName());
+                addDoc(indexWriter, contents, path.toFile().getAbsolutePath());
             }
         }
+    }
+
+    private static boolean foundIgnoreListEntry(Path path, Lucene lucene) {
+        boolean found = false;
+
+        for (String s : lucene.getIgnoreList()) {
+            if (path.toFile().getName().equals(s)) {
+/*                System.out.println("absolute path: " + path.toFile().getAbsolutePath());
+                System.out.println("path " + s);
+                System.out.println("Name: " + path.toFile().getName());*/
+                found = true;
+                break;
+            }
+        }
+        return found;
     }
 
     private static IndexReader getIndexReader(String searchWord, Lucene lucene, StandardAnalyzer analyzer, Directory index, StringBuilder sb) throws IOException {
@@ -151,18 +163,19 @@ public class LuceneSearch {
 
         // 4. display results
         lucene.setHitAmount(hits.length);
-        sb.append("\nFound " + hits.length + " hits.\n");
+        sb.append("\nFound ").append(hits.length).append(" hits.\n");
         List<String> paths = new ArrayList<>();
 
         for (int i = 0; i < hits.length; ++i) {
             int docId = hits[i].doc;
             Document d = searcher.doc(docId);
             paths.add((i + 1) + ". " + d.get("isbn"));
-            sb.append((i + 1) + ". " + d.get("isbn") + "\n" /*+ "\t" + d.get("title")*/);
+            /*+ "\t" + d.get("title")*/
+            sb.append(i + 1).append(". ").append(d.get("isbn")).append("\n");
         }
         lucene.setPath(paths);
         lucene.setInput(searchWord);
-        sb.append("\nquerystring: " + searchWord);
+        sb.append("\nquerystring: ").append(searchWord);
         return reader;
     }
 
