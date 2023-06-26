@@ -28,7 +28,7 @@ public class InputController {
     @RequestMapping(
             method = {RequestMethod.POST, RequestMethod.GET},
             value = "/inputs/filter/int",
-            params = { "post", "filterPath", "filterName", "filterType", "ignoreList" }
+            params = { "post", "filterPath", "filterName", "filterType", "maxDepth", "ignoreList" }
     )
     @ResponseBody
     public int getHitAmount(
@@ -36,6 +36,7 @@ public class InputController {
             @RequestParam("filterPath") String filterPath,
             @RequestParam("filterName") String filterName,
             @RequestParam("filterType") String filterType,
+            @RequestParam("maxDepth") int maxDepth,
             @RequestParam("ignoreList") List<String> ignoreList
     ) throws IOException, InvalidFormatException {
         Lucene lucene = new Lucene();
@@ -43,6 +44,7 @@ public class InputController {
         lucene.setFilterPath(filterPath);
         lucene.setFilterFileName(filterName);
         lucene.setFilterDataType(filterType);
+        lucene.setMaxDepth(maxDepth);
         lucene.setIgnoreList(ignoreList);
         luceneSearch.search(input, lucene);
         return lucene.getHitAmount();
@@ -55,7 +57,7 @@ public class InputController {
     @RequestMapping(
             method = {RequestMethod.POST, RequestMethod.GET},
             value = "/inputs/filter/paths",
-            params = { "post", "filterPath", "filterName", "filterType", "ignoreList" }
+            params = { "post", "filterPath", "filterName", "filterType", "maxDepth", "ignoreList" }
     )
     @ResponseBody
     public List<String> getPaths(
@@ -63,6 +65,7 @@ public class InputController {
             @RequestParam("filterPath") String filterPath,
             @RequestParam("filterName") String filterName,
             @RequestParam("filterType") String filterType,
+            @RequestParam("maxDepth") int maxDepth,
             @RequestParam("ignoreList") List<String> ignoreList
     ) throws IOException, InvalidFormatException {
         Lucene lucene = new Lucene();
@@ -70,6 +73,7 @@ public class InputController {
         lucene.setFilterPath(filterPath);
         lucene.setFilterFileName(filterName);
         lucene.setFilterDataType(filterType);
+        lucene.setMaxDepth(maxDepth);
         lucene.setIgnoreList(ignoreList);
         luceneSearch.search(input, lucene);
         return lucene.getPath();
@@ -78,10 +82,10 @@ public class InputController {
 
     //------------------------------------------------
 
-    @RequestMapping(
+/*    @RequestMapping(
             method = {RequestMethod.POST, RequestMethod.GET},
             value = "/inputs/filter/result",
-            params = { "post", "filterPath", "filterName", "filterType", "ignoreList" }
+            params = { "post", "filterPath", "filterName", "filterType", "maxDepth", "ignoreList" }
     )
     @ResponseBody
     public String ignore(
@@ -89,16 +93,18 @@ public class InputController {
             @RequestParam("filterPath") String filterPath,
             @RequestParam("filterName") String filterName,
             @RequestParam("filterType") String filterType,
+            @RequestParam("maxDepth") int maxDepth,
             @RequestParam("ignoreList") List<String> ignoreList
     ) throws IOException, InvalidFormatException {
         Lucene lucene = new Lucene();
         lucene.setFilterPath(filterPath);
         lucene.setFilterFileName(filterName);
         lucene.setFilterDataType(filterType);
+        lucene.setMaxDepth(maxDepth);
         lucene.setIgnoreList(ignoreList);
         LuceneSearch luceneSearch = new LuceneSearch();
         String result = luceneSearch.search(input, lucene);
-        //String result = input + "\n" + filterPath + "\n" + filterName + "\n" + filterType + "\n" + ignoreList + "\n";
+        //String result = input + "\n" + filterPath + "\n" + filterName + "\n" + filterType + "\n" + maxDepth + "\n" + ignoreList + "\n";
         return result;
-    }
+    }*/
 }

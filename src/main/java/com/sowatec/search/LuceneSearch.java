@@ -26,14 +26,13 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -41,23 +40,18 @@ public class LuceneSearch {
 
     public static void main(String[] args) throws IOException, InvalidFormatException {
 
-        java.util.logging.Logger
-                .getLogger("org.apache.pdfbox").setLevel(java.util.logging.Level.OFF);
-
-
-        Lucene lucene = new Lucene();
+/*        Lucene lucene = new Lucene();
         lucene.setFilterPath("D:\\DATA\\Lucene_test\\");
         lucene.setFilterFileName("");
-        lucene.setFilterDataType(".txt");
+        lucene.setFilterDataType("");
+        lucene.setMaxDepth(99);
 
         List<String> ignoreList = new LinkedList<>();
         ignoreList.add("test2.txt");
-        ignoreList.add("test4.txt");
         lucene.setIgnoreList(ignoreList);
-        System.out.println(lucene.getIgnoreList());
+        System.out.println("IgnoreList: " + lucene.getIgnoreList());
 
-        System.out.println(search("arcana", lucene));
-
+        System.out.println(search("arcana", lucene));*/
     }
 
     public static String search(String searchWord, Lucene lucene) throws IOException, InvalidFormatException {
@@ -68,20 +62,17 @@ public class LuceneSearch {
         IndexWriter w = new IndexWriter(index, config);
         StringBuilder sb = new StringBuilder();
 
-        Path desktopDir = Paths.get(lucene.getFilterPath());
-        List<Path> desktopFiles = Files.list(desktopDir).collect(Collectors.toList());
+        Stream<Path> dirs = Files.walk(Path.of(lucene.getFilterPath()), lucene.getMaxDepth());
 
-        for (Path path : desktopFiles) {
+        for (Path path : dirs.collect(Collectors.toList())) {
 
             if (lucene.getFilterPath() != null || lucene.getFilterFileName() != null || lucene.getFilterDataType() != null) {
 
                 if (path.toFile().getAbsolutePath().endsWith(lucene.getFilterFileName() + lucene.getFilterDataType())) {
                     getIndexWriter(w, sb, path, lucene);
-                }
-                else if (path.toFile().getName().startsWith(lucene.getFilterFileName()) && lucene.getFilterDataType().isBlank()) {
+                } else if (path.toFile().getName().startsWith(lucene.getFilterFileName()) && lucene.getFilterDataType().isBlank()) {
                     getIndexWriter(w, sb, path, lucene);
-                }
-                else if (lucene.getFilterFileName().isBlank() && path.toFile().getAbsolutePath().endsWith(lucene.getFilterDataType())) {
+                } else if (lucene.getFilterFileName().isBlank() && path.toFile().getAbsolutePath().endsWith(lucene.getFilterDataType())) {
                     getIndexWriter(w, sb, path, lucene);
                 }
             }
@@ -102,13 +93,11 @@ public class LuceneSearch {
                 String text = word(path);
                 sb.append("\n### ").append(text.length()).append(" - ").append(path.getFileName());
                 addDoc(indexWriter, text, path.toFile().getAbsolutePath());
-            }
-            else if (path.toFile().getAbsolutePath().endsWith(".pdf")) {
+            } else if (path.toFile().getAbsolutePath().endsWith(".pdf")) {
                 String text = pdf(path);
                 sb.append("\n### ").append(text.length()).append(" - ").append(path.getFileName());
                 addDoc(indexWriter, text, path.toFile().getAbsolutePath());
-            }
-            else if (path.toFile().getAbsolutePath().endsWith(".xlsx")) {
+            } else if (path.toFile().getAbsolutePath().endsWith(".xlsx")) {
                 List<String> list = excel(path);
                 /*ListIterator<String> listIterator = list.listIterator();
 
@@ -120,8 +109,7 @@ public class LuceneSearch {
                 }*/
                 sb.append("\n### ").append(list.size()).append(" - ").append(path.getFileName());
                 addDoc(indexWriter, String.valueOf(list), path.toFile().getAbsolutePath());
-            }
-            else {
+            } else {
                 String contents = readTextContents(path);
                 sb.append("\n### ").append(contents.length()).append(" - ").append(path.getFileName());
                 addDoc(indexWriter, contents, path.toFile().getAbsolutePath());
@@ -134,9 +122,6 @@ public class LuceneSearch {
 
         for (String s : lucene.getIgnoreList()) {
             if (path.toFile().getName().equals(s)) {
-/*                System.out.println("absolute path: " + path.toFile().getAbsolutePath());
-                System.out.println("path " + s);
-                System.out.println("Name: " + path.toFile().getName());*/
                 found = true;
                 break;
             }
@@ -210,8 +195,8 @@ public class LuceneSearch {
 
         for (Iterator<Sheet> it = workbook.sheetIterator(); it.hasNext(); ) {
             Sheet sheet = it.next();
-            for (Row row: sheet) {
-                for (Cell cell: row) {
+            for (Row row : sheet) {
+                for (Cell cell : row) {
                     String formattedNum = formatter.formatCellValue(cell);
                     contents.add(formattedNum);
                 }
@@ -220,22 +205,34 @@ public class LuceneSearch {
         return contents;
     }
 
+    public static String readTextContents(Path path) {
+
+        StringBuilder contentBuilder = new StringBuilder();
+        BufferedReader reader;
+
+        try {
+
+            if (path.toFile().isFile()) {
+                reader = new BufferedReader(new FileReader(path.toFile()));
+                String line = reader.readLine();
+
+                while (line != null) {
+                    line = reader.readLine();
+                    contentBuilder.append(line);
+                }
+
+                reader.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return contentBuilder.toString();
+    }
+
     public static void addDoc(IndexWriter w, String title, String isbn) throws IOException {
         Document doc = new Document();
         doc.add(new TextField("title", title, Field.Store.YES));
         doc.add(new StringField("isbn", isbn, Field.Store.YES));
         w.addDocument(doc);
-    }
-
-    public static String readTextContents(Path filePath) {
-        StringBuilder contentBuilder = new StringBuilder();
-
-        try (Stream<String> stream = Files.lines(filePath, StandardCharsets.UTF_8)) {
-
-            stream.forEach(s -> contentBuilder.append(s).append("\n"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return contentBuilder.toString();
     }
 }

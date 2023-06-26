@@ -1,4 +1,9 @@
 
+POST http://localhost:8081/inputs/filter/result?post=arcana&filterPath=D:\DATA\Lucene_test&filterName=&filterType=.txt&maxDepth=99&ignoreList=D:\DATA\Lucene_test\test2.txt
+Content-Type: application/json
+
+###
+
 POST http://localhost:8081/inputs/filter/int?post=arcana&filterPath=D:/DATA/Lucene_test&filterName=test2&filterType=.txt
 Content-Type: application/json
 

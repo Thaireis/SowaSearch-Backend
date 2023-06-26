@@ -43,7 +43,7 @@ public class Lucene {
 	String filterPath;
 	String filterFileName;
 	String filterDataType;
-
+	int maxDepth;
 	List<String> ignoreList;
 
 	public String getFilterPath() {
@@ -70,6 +70,13 @@ public class Lucene {
 		this.filterDataType = filterDataType;
 	}
 
+	public int getMaxDepth() {
+		return maxDepth;
+	}
+
+	public void setMaxDepth(int maxDepth) {
+		this.maxDepth = maxDepth;
+	}
 
 	public List<String> getIgnoreList() {
 		return ignoreList;
